@@ -19,38 +19,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin Perpustakaan',
             'email' => 'admin@perpustakaan.com',
             'password' => Hash::make('password123'),
-            'role' => 'admin',
             'email_verified_at' => now(),
         ]);
-
-        // Member users (3 orang)
-        $members = [
-            [
-                'name' => 'Budi Santoso',
-                'email' => 'budi@example.com',
-                'password' => Hash::make('password123'),
-                'role' => 'member',
-                'email_verified_at' => now(),
-            ],
-            [
-                'name' => 'Siti Rahayu',
-                'email' => 'siti@example.com',
-                'password' => Hash::make('password123'),
-                'role' => 'member',
-                'email_verified_at' => now(),
-            ],
-            [
-                'name' => 'Agus Wijaya',
-                'email' => 'agus@example.com',
-                'password' => Hash::make('password123'),
-                'role' => 'member',
-                'email_verified_at' => now(),
-            ],
-        ];
-
-        foreach ($members as $member) {
-            User::create($member);
-        }
 
         // Books (10)
         $books = [

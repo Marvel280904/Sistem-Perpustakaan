@@ -37,14 +37,8 @@ class LoginController extends Controller
             // Regenerate session untuk keamanan
             $request->session()->regenerate();
 
-            // Redirect berdasarkan role
-            $user = Auth::user();
-            
-            if ($user->isAdmin()) {
-                return redirect()->intended('/admin/dashboard');
-            } else {
-                return redirect()->intended('/member/dashboard');
-            }
+            // Redirect langsung ke admin dashboard
+            return redirect()->intended('/admin/dashboard');
         }
 
         // Jika login gagal
@@ -63,27 +57,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('/'); // Kembali ke member dashboard
     }
-
-    /**
-     * Show demo accounts info (untuk testing)
-     */
-    public function showDemoInfo()
-    {
-        return response()->json([
-            'demo_accounts' => [
-                'admin' => [
-                    'email' => 'admin@perpustakaan.com',
-                    'password' => 'password123',
-                    'role' => 'Admin'
-                ],
-                'member' => [
-                    'email' => 'budi@example.com',
-                    'password' => 'password123',
-                    'role' => 'Member'
-                ]
-            ]
-        ]);
-    }
+    
 }

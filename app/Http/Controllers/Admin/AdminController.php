@@ -5,26 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Loan;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    /* Cek User Admin? */
-    private function checkAdmin()
-    {
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            abort(403, 'Unauthorized access. Admin only.');
-        }
-    }
-
     /* Display Admin Dashboard */
     public function dashboard()
     {
-        $this->checkAdmin();
-
         // Total Books
         $totalBooks = Book::count();
 
@@ -58,8 +47,6 @@ class AdminController extends Controller
     /* Show Add Loan Modal */
     public function createLoan()
     {
-        $this->checkAdmin();
-        
         $availableBooks = Book::where('stock', '>', 0)->get();
         
         return view('admin.create-loan', compact('availableBooks'));
@@ -68,8 +55,6 @@ class AdminController extends Controller
     /* Store multiple book loans for one borrower */
     public function storeLoan(Request $request)
     {
-        $this->checkAdmin();
-        
         $request->validate([
             'member_name' => 'required|string|max:255',
             'borrower_phone' => 'required|string|max:20', 
@@ -141,8 +126,6 @@ class AdminController extends Controller
     /* Mark loan as returned */
     public function returnLoan($loanId)
     {
-        $this->checkAdmin();
-        
         try {
             $loan = Loan::with('book')
                 ->where('id', $loanId)
@@ -168,12 +151,9 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            // Kembalikan JSON error response
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to mark as returned: ' . $e->getMessage()
-            ], 500);
+            return redirect()->route('admin.dashboard')
+                ->with('error', 'Failed to delete loan: ' . $e->getMessage());
         }
     }
-
+    
 }

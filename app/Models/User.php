@@ -18,8 +18,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',        
-        'role',         
+        'password',                
     ];
 
     /**
@@ -43,42 +42,6 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    // ======================
-    // CUSTOM METHODS & SCOPES
-    // ======================
-
-    /**
-     * Check if user is admin
-     */
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
-
-    /**
-     * Check if user is member
-     */
-    public function isMember(): bool
-    {
-        return $this->role === 'member';
-    }
-
-    /**
-     * Scope for admin users
-     */
-    public function scopeAdmin($query)
-    {
-        return $query->where('role', 'admin');
-    }
-
-    /**
-     * Scope for member users
-     */
-    public function scopeMember($query)
-    {
-        return $query->where('role', 'member');
     }
 
 }

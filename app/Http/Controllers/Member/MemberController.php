@@ -5,33 +5,29 @@ namespace App\Http\Controllers\Member;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class MemberController extends Controller
 {
     /**
-     * Check if user is member
-     */
-    private function checkMember()
-    {
-        if (!Auth::check() || Auth::user()->role !== 'member') {
-            abort(403, 'Unauthorized access. Member only.');
-        }
-    }
-    
-    /**
-     * Display member dashboard (Book Catalog Only)
+     * Display member dashboard (Book Catalog Only) - PUBLIC ACCESS
      */
     public function dashboard(Request $request)
     {
-        $this->checkMember();
-        
-        $user = Auth::user();
         $search = $request->input('search');
         
         // Query books with search filter
-        $books = Book::orderBy('title', 'asc')->get();
+        $booksQuery = Book::query();
         
-        return view('member.dashboard', compact('books', 'search', 'user'));
+        if ($search) {
+            $booksQuery->where(function($query) use ($search) {
+                $query->where('title', 'like', "%{$search}%")
+                      ->orWhere('author', 'like', "%{$search}%")
+                      ->orWhere('isbn', 'like', "%{$search}%");
+            });
+        }
+        
+        $books = $booksQuery->orderBy('title', 'asc')->get();
+        
+        return view('member.dashboard', compact('books', 'search'));
     }
 }

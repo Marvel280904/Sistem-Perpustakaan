@@ -1,4 +1,4 @@
-@extends('layout.page-layout')
+@extends('layout.app')
 
 @section('title', 'Admin Dashboard - Library Management System')
 @section('body-class', 'bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen animate-fade-in')
@@ -7,147 +7,177 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 @endpush
 
-{{-- Badge Khusus Admin --}}
-@section('role-badge')
-    <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full">
-        <i class="fas fa-crown mr-1"></i>Admin
-    </span>
-@endsection
-
-{{-- Isi Dashboard --}}
-@section('page-content')
-
+@section('content')
     <!-- Header -->
-    <div class="mb-8 animate-slide-up">
-        <div class="gradient-bg rounded-2xl p-6 text-white shadow-lg">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div>
-                    <h2 class="text-2xl font-bold">Welcome back, {{ Auth::user()->name }}! 👋</h2>
-                    <p class="text-indigo-100 mt-2">Here's what's happening with your library today.</p>
-                </div>
-                <div class="mt-4 md:mt-0">
-                    <span class="text-sm bg-white/20 px-4 py-2 rounded-full">
-                        <i class="fas fa-calendar-alt mr-2"></i>
-                        {{ now()->format('l, F j, Y') }}
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Information Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Total Books -->
-        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 card-hover animate-slide-up">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm font-medium">Total Books</p>
-                    <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ $totalBooks }}</h3>
-                    <div class="flex items-center mt-2">
-                        <span class="text-sm text-gray-600">
-                            <i class="fas fa-bookmark mr-1"></i> unique titles
+    <header class="glass-effect sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-user-circle text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">ADMIN</h1>
+                        <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full">
+                            <i class="fas fa-crown mr-1"></i>Admin
                         </span>
                     </div>
                 </div>
-                <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <i class="fa fa-book text-blue-600 text-2xl"></i>
+                
+                <div class="flex items-center space-x-4">
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" onclick="return confirm('Are you sure you want to logout?')" 
+                                class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center space-x-2 btn-hover-effect">
+                            <i class="fas fa-sign-out-alt mr-2"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Current Borrow -->
-        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 card-hover animate-slide-up">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm font-medium">Currently Borrowed</p>
-                    <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ $currentlyBorrowed }}</h3>
-                    <div class="flex items-center mt-2">
-                        <span class="text-sm text-gray-600">
-                            <i class="fas fa-clock mr-1"></i> Active loans
-                        </span>
-                    </div>
-                </div>
-                <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-exchange-alt text-amber-600 text-2xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Active Users -->
-        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 card-hover animate-slide-up">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm font-medium">Active Members</p>
-                    <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ $activeMembers }}</h3>
-                    <div class="flex items-center mt-2">
-                        <span class="text-sm text-gray-600">
-                            <i class="fas fa-users mr-1"></i> Unique borrowers
-                        </span>
-                    </div>
-                </div>
-                <div class="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-user-friends text-emerald-600 text-2xl"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Notifications -->
-    @if(session('success'))
-        <div class="mb-6 animate-slide-up">
-            <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-check-circle text-green-500 text-xl mr-3"></i>
-                    <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
 
-    @if(session('error'))
-        <div class="mb-6 animate-slide-up">
-            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-                <div class="flex items-center">
-                    <i class="fas fa-exclamation-circle text-red-500 text-xl mr-3"></i>
-                    <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+            </div>
+        </div>
+    </header>
+    
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Dashboard Header -->
+        <div class="mb-8 animate-slide-up">
+            <div class="gradient-bg rounded-2xl p-6 text-white shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold">Welcome back, ADMIN! 👋</h2>
+                        <p class="text-indigo-100 mt-2">Here's what's happening with your library today.</p>
+                    </div>
+                    <div class="mt-4 md:mt-0">
+                        <span class="text-sm bg-white/20 px-4 py-2 rounded-full">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            {{ now()->format('l, F j, Y') }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
-    @endif
-    
-    <!-- Tab Sections -->
-    <div class="mb-8 animate-slide-up">
-        <div class="flex justify-between items-center border-b border-gray-200">
-            <nav class="flex space-x-3">
-                <button id="tab-library" class="tab-active py-3 px-1 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600">
-                    <i class="fas fa-book-open mr-2"></i>Library Collection
-                </button>
-                <button id="tab-borrowing" class="py-3 px-1 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    <i class="fas fa-exchange-alt mr-2"></i>Borrowing Records
-                </button>
-            </nav>
+        
+        <!-- Information Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Total Books -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 card-hover animate-slide-up">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Books</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ $totalBooks }}</h3>
+                        <div class="flex items-center mt-2">
+                            <span class="text-sm text-gray-600">
+                                <i class="fas fa-bookmark mr-1"></i> unique titles
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <i class="fa fa-book text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
             
-            <button id="add-loan-btn" onclick="openAddLoanModal()" 
-                    class="flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 text-sm font-medium py-2.5 px-5 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg btn-hover-effect">
-                <i class="fas fa-plus-circle mr-2 text-lg"></i>
-                <span>Add New Loan</span>
-            </button>
+            <!-- Current Borrow -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 card-hover animate-slide-up">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Currently Borrowed</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ $currentlyBorrowed }}</h3>
+                        <div class="flex items-center mt-2">
+                            <span class="text-sm text-gray-600">
+                                <i class="fas fa-clock mr-1"></i> Active loans
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-exchange-alt text-amber-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Users -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 card-hover animate-slide-up">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Active Members</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ $activeMembers }}</h3>
+                        <div class="flex items-center mt-2">
+                            <span class="text-sm text-gray-600">
+                                <i class="fas fa-users mr-1"></i> Unique borrowers
+                            </span>
+                        </div>
+                    </div>
+                    <div class="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-user-friends text-emerald-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <!-- Modal Tabs -->
-    <div id="tab-content" class="animate-slide-up">
-        <div id="library-content">
-            @include('admin.library-collection')
-        </div>
-        <div id="borrowing-content" class="hidden">
-            @include('admin.borrow-record')
-        </div>
-    </div>
-@endsection
+        
+        <!-- Notifications -->
+        @if(session('success'))
+            <div class="mb-6 animate-slide-up">
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 text-xl mr-3"></i>
+                        <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
 
-{{-- Add Loan Modal --}}
-@section('modals')
+        @if(session('error'))
+            <div class="mb-6 animate-slide-up">
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-red-500 text-xl mr-3"></i>
+                        <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+        
+        <!-- Tab Sections -->
+        <div class="mb-8 animate-slide-up">
+            <div class="flex justify-between items-center border-b border-gray-200">
+                <nav class="flex space-x-3">
+                    <button id="tab-library" class="tab-active py-3 px-1 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600">
+                        <i class="fas fa-book-open mr-2"></i>Library Collection
+                    </button>
+                    <button id="tab-borrowing" class="py-3 px-1 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-exchange-alt mr-2"></i>Borrowing Records
+                    </button>
+                </nav>
+                
+                <button id="add-loan-btn" onclick="openAddLoanModal()" 
+                        class="flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 text-sm font-medium py-2.5 px-5 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg btn-hover-effect">
+                    <i class="fas fa-plus-circle mr-2 text-lg"></i>
+                    <span>Add New Loan</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Modal Tabs -->
+        <div id="tab-content" class="animate-slide-up">
+            <div id="library-content">
+                @include('admin.library-collection')
+            </div>
+            <div id="borrowing-content" class="hidden">
+                @include('admin.borrow-record')
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="mt-12 py-6 border-t border-gray-200 bg-gray-50">
+        <div class="max-w-7xl mx-auto text-center items-center">
+            <p>© {{ date('Y') }} Library Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Modals -->
     @include('admin.create-loan')
 @endsection
 

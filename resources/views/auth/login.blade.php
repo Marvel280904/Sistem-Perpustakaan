@@ -1,12 +1,14 @@
 @extends('layout.app')
 
-@section('title', 'Login - Library Management System')
+@section('title', 'Member Dashboard - Library Management System')
+@section('body-class', 'bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen animate-fade-in')
 
-{{-- Body Khusus Login --}}
-@section('body-class', 'bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4 animate-fade-in')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/member.css') }}">
+@endpush
 
 @section('content')
-    <div class="max-w-6xl w-full flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
+    <div class="w-full flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
         
         <div class="w-full lg:w-1/2 max-w-md animate-slide-up">
             <div class="bg-white rounded-3xl p-8 shadow-2xl border border-gray-100">
@@ -81,7 +83,7 @@
                         <i class="fas fa-sign-in-alt mr-2"></i>Sign In
                     </button>
                     
-                    <div class="mt-8 pt-8 border-t border-gray-200">
+                    <div class="mt-8 pt-2 border-t border-gray-200">
                         <div class="text-center">
                             <h3 class="text-sm font-medium text-gray-500 mb-4">
                                 <i class="fas fa-vial mr-1"></i>Demo Accounts (for testing):
@@ -97,20 +99,6 @@
                                             <div class="text-left">
                                                 <div class="font-medium text-gray-800">Admin Account</div>
                                                 <div class="text-xs text-gray-600">admin@perpustakaan.com / password123</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="demo-account bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-3 cursor-pointer transition-all duration-300 hover:shadow-md">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
-                                                <i class="fas fa-user text-white text-xs"></i>
-                                            </div>
-                                            <div class="text-left">
-                                                <div class="font-medium text-gray-800">Member Account</div>
-                                                <div class="text-xs text-gray-600">budi@example.com / password123</div>
                                             </div>
                                         </div>
                                     </div>

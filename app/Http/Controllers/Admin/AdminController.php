@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Book;
 use App\Models\Loan;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    /**
-     * Check if user is admin
-     */
+    /* Cek User Admin? */
     private function checkAdmin()
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
@@ -21,118 +20,160 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Display admin dashboard
-     */
+    /* Display Admin Dashboard */
     public function dashboard()
     {
         $this->checkAdmin();
 
-        // Total statistics
-        $totalBooks = Book::sum('stock');
-        $uniqueTitles = Book::count();
-        
+        // Total Books
+        $totalBooks = Book::count();
+
+        // Current Borrowed 
         $currentlyBorrowed = Loan::where('status', 'active')->count();
         
-        // Unique members who have borrowed books (last 30 days)
-        $activeMembers = Loan::where('loan_date', '>=', now()->subDays(30))
-            ->distinct('user_id')
-            ->count('user_id');
+        // Unique borrowers
+        $activeMembers = Loan::where('loan_date', '>=', now()->subDays(30)) 
+            ->select('member_name', 'borrower_email') 
+            ->distinct() 
+            ->get() 
+            ->count();
 
-        // Recent books (limit 8 for cards)
-        $recentBooks = Book::latest()->take(8)->get();
+        // Books for collection section
+        $bookCollection = Book::orderBy('title', 'asc')->get();
 
         // Recent borrowing records with pagination
-        $loans = Loan::with(['book', 'user'])
+        $loans = Loan::with('book') 
             ->latest()
-            ->paginate(10);
-
-        // Books for collection section (for slider/cards)
-        $bookCollection = Book::latest()->take(12)->get();
+            ->get();
 
         return view('admin.dashboard', compact(
             'totalBooks',
-            'uniqueTitles',
             'currentlyBorrowed',
             'activeMembers',
-            'recentBooks',
-            'loans',
-            'bookCollection'
+            'bookCollection',
+            'loans'
         ));
     }
 
-    /**
-     * Search borrowing records
-     */
-    public function searchBorrowings(Request $request)
+    /* Show Add Loan Modal */
+    public function createLoan()
     {
-        $search = $request->input('search');
+        $this->checkAdmin();
         
-        $loans = Loan::with(['book', 'user'])
-            ->whereHas('book', function ($query) use ($search) {
-                $query->where('title', 'like', "%{$search}%")
-                      ->orWhere('author', 'like', "%{$search}%");
-            })
-            ->orWhereHas('user', function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->paginate(10);
-
-        return view('admin.dashboard', [
-            'loans' => $loans,
-            'search' => $search,
-            // Include other data needed for dashboard
-            'totalBooks' => Book::sum('stock'),
-            'uniqueTitles' => Book::count(),
-            'currentlyBorrowed' => Loan::where('status', 'active')->count(),
-            'activeMembers' => Loan::where('loan_date', '>=', now()->subDays(30))
-                ->distinct('user_id')
-                ->count('user_id'),
-            'recentBooks' => Book::latest()->take(8)->get(),
-            'bookCollection' => Book::latest()->take(12)->get(),
-        ]);
+        $availableBooks = Book::where('stock', '>', 0)->get();
+        
+        return view('admin.create-loan', compact('availableBooks'));
     }
 
-    /**
-     * Get books by status (available/unavailable)
-     */
-    public function getBooksByStatus($status)
+    /* Store multiple book loans for one borrower */
+    public function storeLoan(Request $request)
     {
-        if ($status === 'available') {
-            $books = Book::where('stock', '>', 0)->paginate(12);
-        } elseif ($status === 'unavailable') {
-            $books = Book::where('stock', '<=', 0)->paginate(12);
-        } else {
-            $books = Book::paginate(12);
+        $this->checkAdmin();
+        
+        $request->validate([
+            'member_name' => 'required|string|max:255',
+            'borrower_phone' => 'required|string|max:20', 
+            'borrower_email' => 'required|email|max:255',
+            'book_ids' => 'required|array|min:1',
+            'book_ids.*' => 'exists:books,id',
+            'loan_date' => 'required|date',
+            'due_date' => 'required|date|after_or_equal:loan_date',
+        ]);
+        
+        // Cek stock untuk setiap buku
+        $errors = [];
+        $selectedBooks = Book::whereIn('id', $request->book_ids)->get();
+        
+        foreach ($selectedBooks as $book) {
+            if ($book->stock <= 0) {
+                $errors[] = "Book '{$book->title}' is out of stock!";
+            }
         }
-
-        return response()->json([
-            'books' => $books,
-            'status' => $status
-        ]);
-    }
-
-    /**
-     * Get borrowing statistics for chart
-     */
-    public function getBorrowingStats()
-    {
-        // Last 6 months borrowing statistics
-        $stats = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $month = now()->subMonths($i);
-            $count = Loan::whereYear('loan_date', $month->year)
-                ->whereMonth('loan_date', $month->month)
-                ->count();
+        
+        if (!empty($errors)) {
+            return back()
+                ->withErrors(['book_ids' => implode(' ', $errors)])
+                ->withInput();
+        }
+        
+        DB::beginTransaction();
+        
+        try {
+            $loansCreated = [];
             
-            $stats[] = [
-                'month' => $month->format('M Y'),
-                'count' => $count
-            ];
+            foreach ($request->book_ids as $bookId) {
+                $book = Book::find($bookId);
+                
+                // Create loan record
+                $loan = Loan::create([
+                    'book_id' => $bookId,
+                    'member_name' => $request->member_name,
+                    'borrower_phone' => $request->borrower_phone,
+                    'borrower_email' => $request->borrower_email,
+                    'loan_date' => $request->loan_date,
+                    'due_date' => $request->due_date,
+                    'status' => 'active',
+                ]);
+                
+                // Decrease book stock
+                $book->decrement('stock');
+                
+                $loansCreated[] = $loan;
+            }
+            
+            DB::commit();
+            
+            $bookCount = count($request->book_ids);
+            $bookTitles = $selectedBooks->pluck('title')->implode(', ');
+            
+            return redirect()->route('admin.dashboard')
+                ->with('success', "Successfully recorded {$bookCount} loan(s) for {$request->member_name}. Books: {$bookTitles}");
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return back()
+                ->with('error', 'Failed to record loans: ' . $e->getMessage())
+                ->withInput();
         }
-
-        return response()->json($stats);
     }
+
+    /* Mark loan as returned */
+    public function returnLoan($loanId)
+    {
+        $this->checkAdmin();
+        
+        try {
+            $loan = Loan::with('book')
+                ->where('id', $loanId)
+                ->where('status', 'active')
+                ->firstOrFail();
+            
+            DB::beginTransaction();
+            
+            // Update loan status
+            $loan->update([
+                'status' => 'returned',
+                'return_date' => now(),
+            ]);
+            
+            // Increase book stock
+            $loan->book->increment('stock');
+            
+            DB::commit();
+            
+            return redirect()->route('admin.dashboard')
+                ->with('success', "Book '{$loan->book->title}' successfully marked as returned.");
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // Kembalikan JSON error response
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to mark as returned: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

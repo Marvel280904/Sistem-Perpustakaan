@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('loans', function (Blueprint $table) {
             $table->id();
-            
-            // BUAT KOLOM DULU
+    
+            // Foreign key ke books
             $table->unsignedBigInteger('book_id');
-            $table->unsignedBigInteger('user_id');
-            
-            // BUAT FOREIGN KEY
             $table->foreign('book_id')->references('id')->on('books')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            
+            // Data peminjam (manual input oleh admin)
+            $table->string('member_name'); 
+            $table->string('borrower_phone')->nullable(); 
+            $table->string('borrower_email')->nullable();
             
             // KOLOM LAINNYA
             $table->date('loan_date');

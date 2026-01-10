@@ -18,8 +18,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
-        'phone',        
+        'password',        
         'role',         
     ];
 
@@ -82,35 +81,4 @@ class User extends Authenticatable
         return $query->where('role', 'member');
     }
 
-    /**
-     * Relationship with loans (peminjaman)
-     */
-    public function loans()
-    {
-        return $this->hasMany(Loan::class, 'user_id');
-    }
-
-    /**
-     * Get active loans (yang belum dikembalikan)
-     */
-    public function activeLoans()
-    {
-        return $this->loans()->where('status', 'active');
-    }
-
-    /**
-     * Get returned loans (yang sudah dikembalikan)
-     */
-    public function returnedLoans()
-    {
-        return $this->loans()->where('status', 'returned');
-    }
-
-    /**
-     * Get overdue loans (yang telat)
-     */
-    public function overdueLoans()
-    {
-        return $this->loans()->where('status', 'overdue');
-    }
 }

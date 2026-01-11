@@ -11,7 +11,7 @@ A robust Web-based Library Management Application built with Laravel + Tailwind 
 - Architecture     : MVC (Model-View-Controller) + Service Pattern
 - Status           : Production Ready
 
-=============================================================================
+======================================================================================
 
 ## 🎯 USER FLOW & FEATURES
 

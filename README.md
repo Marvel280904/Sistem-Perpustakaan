@@ -4,19 +4,54 @@ A robust Web-based Library Management Application built with Laravel + Tailwind 
 
 ## 📋 PROJECT OVERVIEW
 
-Detail	Information
-Certification	PEMROGRAM — FR.IA.02 (IMT.01.15/SSK/LSP/X/2021)
-Developer	[Nama Anda]
-Platform	Web (Desktop & Mobile Responsive)
-Tech Stack	Laravel, MySQL, Tailwind CSS
-Architecture	MVC (Model-View-Controller) + Service Pattern
-Status	Production Ready
+Certification    : PEMROGRAM (PROGRAMMER) — FR.IA.02 (IMT.01.15/SSK/LSP/X/2021)
+Developer        : Marvel Hans Surjana
+Platform         : Web (Desktop & Mobile Responsive)
+Tech Stack       : Laravel, MySQL, Tailwind CSS
+Architecture     : MVC (Model-View-Controller) + Service Pattern
+Status           : Production Ready
 
-## Learning Laravel
+=============================================================================
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🎯 USER FLOW & FEATURES
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+🌍 1. PUBLIC ACCESS (MEMBER VIEW)
+Route: / (Root)
+- Flow: Pengunjung mengakses halaman utama.
+- Features:
+  - 📚 Book Catalog: Menampilkan seluruh koleksi buku perpustakaan dan jumlah stok tersedia secara real-time.
+  - 🔍 Search: Pencarian buku realtime (Client-side) berdasarkan Judul/ISBN.
+  - Read-Only: Anggota hanya bisa melihat daftar dan stok, tidak bisa mengubah data.
+
+🔐 2. ADMIN AUTHENTICATION
+Route: /login or /admin/dashboard
+- Logic: Single-Role Authentication (Admin Only).
+- Demo Credentials:
+   - Email: admin@perpustakaan.com
+   - Password: password123
+- Security: Middleware auth memproteksi halaman admin. Jika belum login, redirect ke page Login.
+
+⚡ 3. ADMIN DASHBOARD
+Route: /admin/dashboard Setelah login sukses, Admin mengakses fitur manajemen utama:
+A. 📚 Library Collection
+- List lengkap semua buku.
+- Stock Indicator: Menampilkan jumlah stok tersedia secara real-time.
+B. 📋 Recent Borrowing (Riwayat)
+- Tabel riwayat peminjaman.
+- Status: Active (Sedang dipinjam) atau Returned (Sudah kembali).
+- Action: Tombol "Return" untuk mengubah status untuk buku yang sudah dikembalikan dan menambah stok otomatis.
+
+C. ➕ Add Loan (Pencatatan Peminjaman)
+- Input Data Peminjam:
+  - Nama Lengkap
+  - Email
+  - No. Telepon
+- Input Buku: Select buku (Multiple selection allowed). Disable jika stock nya 0
+- Date Logic:
+  - Input: Loan Date (Tanggal Pinjam).
+  - Auto Logic: Due Date otomatis terisi Loan Date + 7 Hari.
+- Backend Process:
+  - Database Transaction (Insert Data Peminjam + Decrement Stok Buku).
 
 ## Laravel Sponsors
 

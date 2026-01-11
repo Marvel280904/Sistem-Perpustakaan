@@ -4,12 +4,12 @@ A robust Web-based Library Management Application built with Laravel + Tailwind 
 
 ## 📋 PROJECT OVERVIEW
 
-Certification    : PEMROGRAM (PROGRAMMER) — FR.IA.02 (IMT.01.15/SSK/LSP/X/2021)
-Developer        : Marvel Hans Surjana
-Platform         : Web (Desktop & Mobile Responsive)
-Tech Stack       : Laravel, MySQL, Tailwind CSS
-Architecture     : MVC (Model-View-Controller) + Service Pattern
-Status           : Production Ready
+- Certification    : PEMROGRAM (PROGRAMMER) — FR.IA.02 (IMT.01.15/SSK/LSP/X/2021)
+- Developer        : Marvel Hans Surjana
+- Platform         : Web (Desktop & Mobile Responsive)
+- Tech Stack       : Laravel, MySQL, Tailwind CSS
+- Architecture     : MVC (Model-View-Controller) + Service Pattern
+- Status           : Production Ready
 
 =============================================================================
 
@@ -33,9 +33,11 @@ Route: /login or /admin/dashboard
 
 ⚡ 3. ADMIN DASHBOARD
 Route: /admin/dashboard Setelah login sukses, Admin mengakses fitur manajemen utama:
+
 A. 📚 Library Collection
 - List lengkap semua buku.
 - Stock Indicator: Menampilkan jumlah stok tersedia secara real-time.
+
 B. 📋 Recent Borrowing (Riwayat)
 - Tabel riwayat peminjaman.
 - Status: Active (Sedang dipinjam) atau Returned (Sudah kembali).
